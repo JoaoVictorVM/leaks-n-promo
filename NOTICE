@@ -1,0 +1,38 @@
+leaks&promo
+Copyright (c) 2026 João Victor Ventura Martins
+
+Este produto é licenciado sob os termos da licença MIT (ver arquivo LICENSE).
+
+================================================================================
+Atribuições de fontes de dados
+================================================================================
+
+Este software consome dados de serviços de terceiros. O uso de cada fonte está
+sujeito aos respectivos termos de serviço.
+
+--------------------------------------------------------------------------------
+CheapShark (preços de jogos de PC)
+--------------------------------------------------------------------------------
+- Site: https://www.cheapshark.com
+- API: https://apitalks.store/cheapshark-api / https://www.cheapshark.com/api
+- Obrigações observadas:
+  - Enviar um cabeçalho User-Agent identificando a aplicação nas requisições.
+  - Direcionar o usuário às ofertas usando os links fornecidos pelo CheapShark.
+  - Preços apresentados em USD.
+
+--------------------------------------------------------------------------------
+Fontes RSS (vazamentos e rumores de games)
+--------------------------------------------------------------------------------
+- Conteúdo agregado a partir de feeds RSS públicos de sites de notícias de games.
+- Os direitos sobre o conteúdo pertencem aos respectivos veículos; o bot apenas
+  agrega títulos e links, direcionando o usuário à fonte original.
+
+--------------------------------------------------------------------------------
+Reddit (vazamentos e rumores — enhancement opcional)
+--------------------------------------------------------------------------------
+- Site: https://www.reddit.com
+- Subreddit de referência: r/GamingLeaksAndRumours
+- Obrigações observadas:
+  - Autenticação via OAuth 2.0.
+  - Uso não-comercial, respeitando os limites de requisição da API.
+  - Esta fonte só é habilitada se/quando o aplicativo for aprovado pelo Reddit.
