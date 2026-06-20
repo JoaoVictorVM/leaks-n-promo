@@ -2,6 +2,10 @@
 # O hook commit-msg (validador de Conventional Commits) será plugado quando o
 # linter próprio em Go (tools/commit-lint) existir.
 
+# Desliga as cores ANSI: alguns terminais do Windows não as interpretam e
+# mostram códigos de escape crus, dando aparência de travamento no commit.
+colors: false
+
 pre-commit:
   parallel: true
   commands:
