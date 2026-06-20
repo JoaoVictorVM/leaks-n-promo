@@ -1,0 +1,35 @@
+# Binários e artefatos de build
+/bin/
+/dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Saída de testes e cobertura
+*.test
+*.out
+coverage.*
+
+# Segredos e config local (ver .env.example)
+.env
+.env.local
+*.local
+
+# Banco SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# IDEs e editores
+.idea/
+.vscode/
+*.swp
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+CLAUDE.md
+PRD.md
