@@ -1,0 +1,16 @@
+# Hooks de git locais. Instale com: lefthook install
+# O hook commit-msg (validador de Conventional Commits) será plugado quando o
+# linter próprio em Go (tools/commit-lint) existir.
+
+pre-commit:
+  parallel: true
+  commands:
+    fmt:
+      glob: "*.go"
+      run: golangci-lint fmt --diff
+    lint:
+      glob: "*.go"
+      run: golangci-lint run
+    test:
+      glob: "*.go"
+      run: go test ./...
