@@ -1,0 +1,7 @@
+# Dockerfile usado pelo GoReleaser: o binário já vem compilado no contexto, então
+# aqui só montamos a imagem final. O Dockerfile multi-stage (build a partir do
+# fonte) é o Dockerfile da raiz, para dev/local.
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY leaks-n-promo /usr/local/bin/leaks-n-promo
+USER nonroot:nonroot
+ENTRYPOINT ["/usr/local/bin/leaks-n-promo"]
