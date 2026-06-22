@@ -1,0 +1,21 @@
+# Controle de versão e CI
+.git
+.github
+
+# Artefatos de build e testes
+bin
+dist
+coverage.*
+
+# Segredos e config local
+.env
+.env.*
+!.env.example
+
+# Documentação e metadados (não usados na imagem)
+*.md
+docs
+
+# Ferramentas de editor
+.idea
+.vscode
