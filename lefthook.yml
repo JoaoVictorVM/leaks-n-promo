@@ -1,6 +1,4 @@
 # Hooks de git locais. Instale com: lefthook install
-# O hook commit-msg (validador de Conventional Commits) será plugado quando o
-# linter próprio em Go (tools/commit-lint) existir.
 
 # Desliga as cores ANSI: alguns terminais do Windows não as interpretam e
 # mostram códigos de escape crus, dando aparência de travamento no commit.
@@ -18,3 +16,9 @@ pre-commit:
     test:
       glob: "*.go"
       run: go test ./...
+
+# {1} é o caminho do arquivo da mensagem que o git passa ao hook commit-msg.
+commit-msg:
+  commands:
+    conventional:
+      run: go run ./tools/commit-lint {1}
