@@ -1,0 +1,25 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: leaks-n-promo:local
+    container_name: leaks-n-promo
+    # Copie .env.example para .env e preencha. required:false evita erro quando
+    # o arquivo ainda não existe.
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          memory: 64M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
