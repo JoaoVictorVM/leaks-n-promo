@@ -37,6 +37,10 @@ linters:
         - errors.Join(
         - .Wrap(
         - .Wrapf(
+      # Pacotes do próprio módulo não são "externos": já retornam erros com
+      # contexto, então não exigem novo wrap ao cruzar fronteiras internas.
+      ignore-package-globs:
+        - github.com/JoaoVictorVM/leaks-n-promo/*
   exclusions:
     generated: lax
     rules:
