@@ -1,0 +1,5 @@
+[
+  { "title": "Celeste", "dealID": "abc123", "storeID": "1", "salePrice": "4.99", "normalPrice": "19.99" },
+  { "title": "Celeste", "dealID": "def456", "storeID": "7", "salePrice": "5.49", "normalPrice": "19.99" },
+  { "title": "Celeste Soundtrack", "dealID": "ghi789", "storeID": "99", "salePrice": "2.99", "normalPrice": "8.99" }
+]

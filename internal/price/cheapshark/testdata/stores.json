@@ -1,0 +1,5 @@
+[
+  { "storeID": "1", "storeName": "Steam" },
+  { "storeID": "7", "storeName": "GOG" },
+  { "storeID": "25", "storeName": "Epic Games Store" }
+]
