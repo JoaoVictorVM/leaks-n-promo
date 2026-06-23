@@ -15,6 +15,14 @@ import (
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/logging"
 )
 
+// Informações de build injetadas via ldflags (-X) pelo GoReleaser/Dockerfile.
+// Os defaults valem para builds de desenvolvimento (go run/go build sem flags).
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	if err := run(); err != nil {
 		// O logger pode não existir se a config falhar; reportamos em stderr.
@@ -42,6 +50,9 @@ func run() error {
 	defer stop()
 
 	logger.Info("bot iniciando",
+		"version", version,
+		"commit", commit,
+		"date", date,
 		"guild_scoped", cfg.DiscordGuildID != "",
 		"reddit_enabled", cfg.Reddit.Enabled(),
 	)
