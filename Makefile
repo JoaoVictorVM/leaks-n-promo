@@ -13,9 +13,13 @@ SHELL := cmd.exe
 .SHELLFLAGS := /c
 RM_BIN = if exist "$(BIN_DIR)" rmdir /s /q "$(BIN_DIR)"
 RM_COVER = if exist coverage.out del /q coverage.out
+# Carrega o .env (KEY=VALUE, ignorando comentários) e roda o bot. No Windows via
+# PowerShell; no Unix lendo o arquivo no shell atual (preserva valores com espaços).
+DEV = powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-Content .env | Where-Object { $$_ -match '^[^\#].*=' } | ForEach-Object { $$k,$$v = $$_ -split '=',2; [Environment]::SetEnvironmentVariable($$k.Trim(), $$v.Trim()) }; go run ./cmd/bot"
 else
 RM_BIN = rm -rf "$(BIN_DIR)"
 RM_COVER = rm -f coverage.out
+DEV = while IFS='=' read -r k v; do case "$$k" in ''|\#*) :;; *) export "$$k=$$v";; esac; done < .env; $(GO) run $(CMD)
 endif
 
 .DEFAULT_GOAL := help
@@ -26,6 +30,7 @@ help:
 	@echo   help        mostra esta ajuda
 	@echo   build       compila o binario em bin/
 	@echo   run         executa o bot localmente
+	@echo   dev         carrega o .env e roda o bot
 	@echo   test        roda os testes
 	@echo   test-race   roda os testes com o detector de data race
 	@echo   cover       gera e abre o relatorio de cobertura
@@ -42,6 +47,10 @@ build:
 .PHONY: run
 run:
 	$(GO) run $(CMD)
+
+.PHONY: dev
+dev:
+	@$(DEV)
 
 .PHONY: test
 test:
