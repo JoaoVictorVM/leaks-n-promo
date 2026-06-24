@@ -66,6 +66,10 @@ func run() error {
 		}
 	}()
 
+	if err := bot.RegisterCommands(cfg.DiscordAppID, cfg.DiscordGuildID); err != nil {
+		return err
+	}
+
 	serve(ctx, logger)
 	return nil
 }
