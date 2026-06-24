@@ -42,6 +42,17 @@ func (b *Bot) Open() error {
 	return nil
 }
 
+// InteractionHandler trata eventos de interação do Discord.
+type InteractionHandler interface {
+	Handle(*discordgo.Session, *discordgo.InteractionCreate)
+}
+
+// AddInteractionHandler registra um handler de interações. Deve ser chamado
+// antes de Open para não perder eventos.
+func (b *Bot) AddInteractionHandler(h InteractionHandler) {
+	b.session.AddHandler(h.Handle)
+}
+
 // Close encerra a conexão com o gateway.
 func (b *Bot) Close() error {
 	if err := b.session.Close(); err != nil {

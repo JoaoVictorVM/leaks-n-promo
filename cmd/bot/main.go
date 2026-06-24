@@ -6,13 +6,24 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
+	"github.com/JoaoVictorVM/leaks-n-promo/internal/cache"
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/config"
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/discord"
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/logging"
+	"github.com/JoaoVictorVM/leaks-n-promo/internal/price"
+	"github.com/JoaoVictorVM/leaks-n-promo/internal/price/cheapshark"
+)
+
+const (
+	priceAttempts  = 3
+	priceBaseDelay = 200 * time.Millisecond
+	priceMaxDelay  = 2 * time.Second
 )
 
 // Informações de build injetadas via ldflags (-X) pelo GoReleaser/Dockerfile.
@@ -43,6 +54,20 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
+	// Cadeia de preço: cliente CheapShark → resiliência (timeout/backoff). O
+	// cache fica no handler. O timeout por tentativa vem da config.
+	priceProvider := price.NewRetrying(
+		cheapshark.New(&http.Client{}, cfg.CheapSharkUserAgent),
+		price.RetryConfig{
+			Attempts:  priceAttempts,
+			BaseDelay: priceBaseDelay,
+			MaxDelay:  priceMaxDelay,
+			Timeout:   cfg.HTTPTimeout,
+		},
+	)
+	priceCache := cache.New[string, []price.Offer](cfg.CacheTTL)
+	bot.AddInteractionHandler(discord.NewPrecoHandler(priceProvider, priceCache, logger))
 
 	// Cancela o contexto ao receber SIGINT/SIGTERM, disparando o encerramento
 	// gracioso.
