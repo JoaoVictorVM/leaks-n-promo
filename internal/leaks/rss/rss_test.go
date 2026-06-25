@@ -7,8 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/JoaoVictorVM/leaks-n-promo/internal/leaks"
 )
 
 const testUserAgent = "leaks-n-promo-test/1.0"
@@ -119,20 +117,5 @@ func TestParsePubDate(t *testing.T) {
 		if !wantParsed && !got.IsZero() {
 			t.Errorf("parsePubDate(%q) deveria ser zero, obtive %v", raw, got)
 		}
-	}
-}
-
-func TestFilterByTerm(t *testing.T) {
-	items := []leaks.Leak{
-		{Title: "GTA 6 map leaked"},
-		{Title: "Zelda rumor"},
-	}
-
-	if got := filterByTerm(items, ""); len(got) != 2 {
-		t.Errorf("termo vazio deveria manter tudo, obtive %d", len(got))
-	}
-	got := filterByTerm(items, "ZELDA")
-	if len(got) != 1 || got[0].Title != "Zelda rumor" {
-		t.Errorf("filtro por \"zelda\" inesperado: %+v", got)
 	}
 }

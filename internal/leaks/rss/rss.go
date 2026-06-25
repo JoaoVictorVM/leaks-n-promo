@@ -95,7 +95,7 @@ func (s *Source) Fetch(ctx context.Context, term string) ([]leaks.Leak, error) {
 		return nil, fmt.Errorf("todas as fontes RSS falharam: %w", errors.Join(errs...))
 	}
 
-	return filterByTerm(all, term), nil
+	return leaks.FilterByTerm(all, term), nil
 }
 
 func (s *Source) fetchFeed(ctx context.Context, url string) ([]leaks.Leak, error) {
@@ -158,18 +158,4 @@ func parsePubDate(raw string) time.Time {
 		}
 	}
 	return time.Time{}
-}
-
-func filterByTerm(items []leaks.Leak, term string) []leaks.Leak {
-	term = strings.TrimSpace(strings.ToLower(term))
-	if term == "" {
-		return items
-	}
-	out := make([]leaks.Leak, 0, len(items))
-	for _, it := range items {
-		if strings.Contains(strings.ToLower(it.Title), term) {
-			out = append(out, it)
-		}
-	}
-	return out
 }
