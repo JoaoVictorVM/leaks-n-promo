@@ -15,6 +15,9 @@ import (
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/cache"
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/config"
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/discord"
+	"github.com/JoaoVictorVM/leaks-n-promo/internal/leaks"
+	"github.com/JoaoVictorVM/leaks-n-promo/internal/leaks/reddit"
+	"github.com/JoaoVictorVM/leaks-n-promo/internal/leaks/rss"
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/logging"
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/price"
 	"github.com/JoaoVictorVM/leaks-n-promo/internal/price/cheapshark"
@@ -68,6 +71,15 @@ func run() error {
 	)
 	priceCache := cache.New[string, []price.Offer](cfg.CacheTTL)
 	bot.AddInteractionHandler(discord.NewPrecoHandler(priceProvider, priceCache, logger))
+
+	// Fonte de leaks: RSS é o backbone; o Reddit só entra se houver credenciais.
+	httpClient := &http.Client{}
+	leakSources := []leaks.LeakSource{rss.New(httpClient, cfg.CheapSharkUserAgent, rss.DefaultFeeds)}
+	if cfg.Reddit.Enabled() {
+		leakSources = append(leakSources, reddit.New(httpClient, cfg.CheapSharkUserAgent, cfg.Reddit.ClientID, cfg.Reddit.ClientSecret))
+	}
+	leakCache := cache.New[string, []leaks.Leak](cfg.CacheTTL)
+	bot.AddInteractionHandler(discord.NewLeaksHandler(leaks.NewAggregator(leakSources...), leakCache, logger))
 
 	// Cancela o contexto ao receber SIGINT/SIGTERM, disparando o encerramento
 	// gracioso.

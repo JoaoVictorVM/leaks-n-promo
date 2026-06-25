@@ -45,15 +45,12 @@ func (h *PrecoHandler) Handle(s *discordgo.Session, i *discordgo.InteractionCrea
 
 	game := strings.TrimSpace(optionString(data.Options, "jogo"))
 	if game == "" {
-		h.replyEphemeral(s, i, "Informe o nome de um jogo. Exemplo: `/preco jogo: Celeste`")
+		replyEphemeral(s, i, h.logger, "Informe o nome de um jogo. Exemplo: `/preco jogo: Celeste`")
 		return
 	}
 
 	// A busca pode demorar; adiamos a resposta (Discord mostra "pensando...").
-	if err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-	}); err != nil {
-		h.logger.Error("falha ao adiar resposta do /preco", "erro", err)
+	if !deferThinking(s, i, h.logger) {
 		return
 	}
 
@@ -64,11 +61,11 @@ func (h *PrecoHandler) Handle(s *discordgo.Session, i *discordgo.InteractionCrea
 	switch {
 	case err != nil:
 		h.logger.Error("falha na busca de preço", "jogo", game, "erro", err)
-		h.editContent(s, i, "Não consegui consultar os preços agora. Tente novamente em instantes.")
+		editContent(s, i, h.logger, "Não consegui consultar os preços agora. Tente novamente em instantes.")
 	case len(offers) == 0:
-		h.editContent(s, i, fmt.Sprintf("Nenhum resultado encontrado para **%s**.", game))
+		editContent(s, i, h.logger, fmt.Sprintf("Nenhum resultado encontrado para **%s**.", game))
 	default:
-		h.editEmbed(s, i, buildPrecoEmbed(game, offers))
+		editEmbed(s, i, h.logger, buildPrecoEmbed(game, offers))
 	}
 }
 
@@ -87,37 +84,6 @@ func (h *PrecoHandler) lookup(ctx context.Context, game string) ([]price.Offer, 
 
 	h.cache.Set(key, offers)
 	return offers, nil
-}
-
-func (h *PrecoHandler) replyEphemeral(s *discordgo.Session, i *discordgo.InteractionCreate, msg string) {
-	if err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{Content: msg, Flags: discordgo.MessageFlagsEphemeral},
-	}); err != nil {
-		h.logger.Error("falha ao responder /preco", "erro", err)
-	}
-}
-
-func (h *PrecoHandler) editContent(s *discordgo.Session, i *discordgo.InteractionCreate, msg string) {
-	if _, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{Content: &msg}); err != nil {
-		h.logger.Error("falha ao editar resposta do /preco", "erro", err)
-	}
-}
-
-func (h *PrecoHandler) editEmbed(s *discordgo.Session, i *discordgo.InteractionCreate, embed *discordgo.MessageEmbed) {
-	embeds := []*discordgo.MessageEmbed{embed}
-	if _, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{Embeds: &embeds}); err != nil {
-		h.logger.Error("falha ao editar resposta do /preco com embed", "erro", err)
-	}
-}
-
-func optionString(opts []*discordgo.ApplicationCommandInteractionDataOption, name string) string {
-	for _, o := range opts {
-		if o.Name == name {
-			return o.StringValue()
-		}
-	}
-	return ""
 }
 
 func buildPrecoEmbed(game string, offers []price.Offer) *discordgo.MessageEmbed {
