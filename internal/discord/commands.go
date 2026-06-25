@@ -21,8 +21,23 @@ var precoCommand = &discordgo.ApplicationCommand{
 	},
 }
 
+// leaksCommand define o slash command /leaks. O termo é opcional: sem ele,
+// retorna os vazamentos mais recentes.
+var leaksCommand = &discordgo.ApplicationCommand{
+	Name:        "leaks",
+	Description: "Lista vazamentos e rumores recentes de games",
+	Options: []*discordgo.ApplicationCommandOption{
+		{
+			Type:        discordgo.ApplicationCommandOptionString,
+			Name:        "termo",
+			Description: "Filtra por um termo (ex.: nome de um jogo)",
+			Required:    false,
+		},
+	},
+}
+
 // commands reúne todos os slash commands registrados pelo bot.
-var commands = []*discordgo.ApplicationCommand{precoCommand}
+var commands = []*discordgo.ApplicationCommand{precoCommand, leaksCommand}
 
 // RegisterCommands registra (sobrescrevendo) o conjunto de comandos. Com guildID
 // preenchido o registro é por guild (propaga na hora); vazio = global.
