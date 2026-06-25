@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Game Leaks Daily</title>
+    <item>
+      <title>GTA 6 map leaked online</title>
+      <link>https://example.com/gta6-map</link>
+      <pubDate>Mon, 02 Jan 2006 15:04:05 -0700</pubDate>
+    </item>
+    <item>
+      <title>New Zelda rumor surfaces</title>
+      <link>https://example.com/zelda</link>
+      <pubDate>Tue, 03 Jan 2006 10:00:00 -0700</pubDate>
+    </item>
+    <item>
+      <title>Item sem link deve ser ignorado</title>
+      <link></link>
+    </item>
+  </channel>
+</rss>
