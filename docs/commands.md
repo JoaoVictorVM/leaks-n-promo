@@ -49,4 +49,55 @@ resultado.
 
 ## `/leaks`
 
-> Em desenvolvimento (Fase 2). Será documentado quando disponível.
+Lista vazamentos e rumores recentes de games, agregados de fontes RSS e
+(opcionalmente) do Reddit.
+
+### Parâmetros
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `termo` | string | não | Filtra por um termo (ex.: nome de um jogo). Sem ele, retorna os mais recentes. |
+
+### Uso
+
+```
+/leaks
+/leaks termo: gta
+```
+
+### Resposta
+
+Um embed com até 10 itens, cada um mostrando:
+
+- **Título** com link para a publicação original.
+- **Fonte** (nome do feed ou "Reddit").
+- **Data** de publicação (quando disponível).
+
+Os resultados são **deduplicados por URL** e ordenados do mais recente para o
+mais antigo. O bot exibe "pensando…" enquanto busca.
+
+### Fontes (modelo em camadas)
+
+- **Backbone: RSS** — feeds de sites de notícias/leaks de games. Funciona sem
+  autenticação e independe do Reddit. O filtro por termo é aplicado localmente.
+- **Enhancement: Reddit** — busca no subreddit r/GamingLeaksAndRumours. Só é
+  habilitado quando há credenciais (`REDDIT_CLIENT_ID`/`REDDIT_CLIENT_SECRET`) e
+  o app está aprovado. Se indisponível, o `/leaks` continua respondendo só com o
+  RSS.
+
+### Casos de borda
+
+| Situação | Resposta |
+|---|---|
+| Nenhum resultado (com termo) | "Nenhum vazamento encontrado para **<termo>**." |
+| Nenhum resultado (sem termo) | "Nenhum vazamento recente encontrado." |
+| Todas as fontes indisponíveis | Mensagem de fallback amigável, sem detalhe interno. |
+
+### Observações
+
+- **Resiliência:** as fontes são consultadas em paralelo; falha de uma fonte não
+  derruba as demais. Só há erro quando **todas** falham.
+- **Cache:** resultados recentes são memorizados em memória por um TTL curto
+  (`CACHE_TTL`), inclusive a listagem sem termo.
+- O bot apenas **agrega e direciona** à fonte original; não verifica a
+  veracidade dos rumores.
