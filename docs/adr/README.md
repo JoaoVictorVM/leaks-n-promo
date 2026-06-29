@@ -15,3 +15,4 @@ muda, cria-se um novo ADR que **substitui** o anterior (em vez de editá-lo).
 | [0002](0002-arquitetura-pull-only-stateless.md) | Arquitetura pull-only e stateless na v1 | Aceito |
 | [0003](0003-fontes-atras-de-interfaces.md) | Fontes de dados atrás de interfaces | Aceito |
 | [0004](0004-deploy-gateway-self-host.md) | Deploy gateway + self-host containerizado | Aceito |
+| [0005](0005-optional-persistence-and-push.md) | Persistência opcional (SQLite) e push de leaks | Aceito (amenda 0002) |
