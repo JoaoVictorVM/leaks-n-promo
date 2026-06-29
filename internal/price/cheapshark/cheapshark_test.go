@@ -133,6 +133,20 @@ func TestSearchRateLimited(t *testing.T) {
 	}
 }
 
+func TestRedirectURLPreservesEncodedDealID(t *testing.T) {
+	// O dealID já vem percent-encoded; o link não pode re-encodá-lo.
+	dealID := "dPa6mWDMGSef4%2FAdNuQBsxOHDUbNZ3ttlethrFug6DQ%3D"
+	got := redirectURL(dealID)
+
+	want := "https://www.cheapshark.com/redirect?dealID=" + dealID
+	if got != want {
+		t.Errorf("redirectURL = %q, esperava %q", got, want)
+	}
+	if strings.Contains(got, "%25") {
+		t.Errorf("dealID foi re-encodado (contém %%25): %q", got)
+	}
+}
+
 func TestSearchUnexpectedStatus(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/stores", func(w http.ResponseWriter, _ *http.Request) {

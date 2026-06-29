@@ -187,6 +187,9 @@ func parsePrice(raw string) float64 {
 	return v
 }
 
+// redirectURL monta o link da oferta. O dealID já vem percent-encoded da API do
+// CheapShark, então é concatenado direto — re-encodá-lo (via url.Values) quebraria
+// o link ao transformar "%2F" em "%252F".
 func redirectURL(dealID string) string {
-	return redirectBaseURL + "?" + url.Values{"dealID": {dealID}}.Encode()
+	return redirectBaseURL + "?dealID=" + dealID
 }
