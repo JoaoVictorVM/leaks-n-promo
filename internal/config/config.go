@@ -11,20 +11,21 @@ import (
 	"time"
 )
 
-// defaultUserAgent identifica a aplicação nas chamadas ao CheapShark, conforme
-// exigido pelos termos da API.
+// defaultUserAgent identifica a aplicação nas chamadas HTTP. O CheapShark exige
+// um User-Agent; as demais fontes também o enviam.
 const defaultUserAgent = "leaks-n-promo/0.1 (+https://github.com/JoaoVictorVM/leaks-n-promo)"
 
 // Config reúne toda a configuração resolvida do bot.
 type Config struct {
-	DiscordToken        string
-	DiscordAppID        string
-	DiscordGuildID      string // opcional: vazio = registro global de comandos
-	LogLevel            slog.Level
-	CacheTTL            time.Duration
-	HTTPTimeout         time.Duration
-	CheapSharkUserAgent string
-	Reddit              RedditConfig
+	DiscordToken   string
+	DiscordAppID   string
+	DiscordGuildID string // opcional: vazio = registro global de comandos
+	LogLevel       slog.Level
+	CacheTTL       time.Duration
+	HTTPTimeout    time.Duration
+	UserAgent      string
+	RSSFeeds       []string // vazio = usar os feeds padrão da fonte RSS
+	Reddit         RedditConfig
 }
 
 // RedditConfig guarda as credenciais opcionais do Reddit (fonte enhancement).
@@ -69,14 +70,15 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		DiscordToken:        token,
-		DiscordAppID:        appID,
-		DiscordGuildID:      strings.TrimSpace(os.Getenv("DISCORD_GUILD_ID")),
-		LogLevel:            level,
-		CacheTTL:            cacheTTL,
-		HTTPTimeout:         httpTimeout,
-		CheapSharkUserAgent: lookupEnv("CHEAPSHARK_USER_AGENT", defaultUserAgent),
-		Reddit:              reddit,
+		DiscordToken:   token,
+		DiscordAppID:   appID,
+		DiscordGuildID: strings.TrimSpace(os.Getenv("DISCORD_GUILD_ID")),
+		LogLevel:       level,
+		CacheTTL:       cacheTTL,
+		HTTPTimeout:    httpTimeout,
+		UserAgent:      lookupEnv("HTTP_USER_AGENT", defaultUserAgent),
+		RSSFeeds:       parseList(os.Getenv("LEAK_RSS_FEEDS")),
+		Reddit:         reddit,
 	}, nil
 }
 
@@ -126,6 +128,22 @@ func parseLevel(raw string) (slog.Level, error) {
 	default:
 		return 0, fmt.Errorf("variável LOG_LEVEL inválida (%q): use debug, info, warn ou error", raw)
 	}
+}
+
+// parseList separa uma lista CSV, descartando espaços e itens vazios. Retorna
+// nil quando não há itens (o consumidor aplica o padrão).
+func parseList(raw string) []string {
+	parts := strings.Split(raw, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if v := strings.TrimSpace(p); v != "" {
+			out = append(out, v)
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
 
 func validateReddit(r RedditConfig) error {

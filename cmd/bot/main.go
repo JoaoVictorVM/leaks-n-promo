@@ -61,7 +61,7 @@ func run() error {
 	// Cadeia de preço: cliente CheapShark → resiliência (timeout/backoff). O
 	// cache fica no handler. O timeout por tentativa vem da config.
 	priceProvider := price.NewRetrying(
-		cheapshark.New(&http.Client{}, cfg.CheapSharkUserAgent),
+		cheapshark.New(&http.Client{}, cfg.UserAgent),
 		price.RetryConfig{
 			Attempts:  priceAttempts,
 			BaseDelay: priceBaseDelay,
@@ -74,9 +74,13 @@ func run() error {
 
 	// Fonte de leaks: RSS é o backbone; o Reddit só entra se houver credenciais.
 	httpClient := &http.Client{}
-	leakSources := []leaks.LeakSource{rss.New(httpClient, cfg.CheapSharkUserAgent, rss.DefaultFeeds)}
+	feeds := cfg.RSSFeeds
+	if len(feeds) == 0 {
+		feeds = rss.DefaultFeeds
+	}
+	leakSources := []leaks.LeakSource{rss.New(httpClient, cfg.UserAgent, feeds)}
 	if cfg.Reddit.Enabled() {
-		leakSources = append(leakSources, reddit.New(httpClient, cfg.CheapSharkUserAgent, cfg.Reddit.ClientID, cfg.Reddit.ClientSecret))
+		leakSources = append(leakSources, reddit.New(httpClient, cfg.UserAgent, cfg.Reddit.ClientID, cfg.Reddit.ClientSecret))
 	}
 	leakCache := cache.New[string, []leaks.Leak](cfg.CacheTTL)
 	bot.AddInteractionHandler(discord.NewLeaksHandler(leaks.NewAggregator(leakSources...), leakCache, logger))

@@ -9,15 +9,15 @@ import (
 
 func baseEnv() map[string]string {
 	return map[string]string{
-		"DISCORD_TOKEN":         "tok",
-		"DISCORD_APP_ID":        "app",
-		"DISCORD_GUILD_ID":      "",
-		"LOG_LEVEL":             "info",
-		"CACHE_TTL":             "5m",
-		"HTTP_TIMEOUT":          "10s",
-		"CHEAPSHARK_USER_AGENT": "ua/test",
-		"REDDIT_CLIENT_ID":      "",
-		"REDDIT_CLIENT_SECRET":  "",
+		"DISCORD_TOKEN":        "tok",
+		"DISCORD_APP_ID":       "app",
+		"DISCORD_GUILD_ID":     "",
+		"LOG_LEVEL":            "info",
+		"CACHE_TTL":            "5m",
+		"HTTP_TIMEOUT":         "10s",
+		"HTTP_USER_AGENT":      "ua/test",
+		"REDDIT_CLIENT_ID":     "",
+		"REDDIT_CLIENT_SECRET": "",
 	}
 }
 
@@ -63,13 +63,45 @@ func TestLoadValid(t *testing.T) {
 	}
 }
 
+func TestLoadRSSFeeds(t *testing.T) {
+	applyEnv(t, baseEnv())
+	t.Setenv("LEAK_RSS_FEEDS", " https://a/feed , , https://b/feed ")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("esperava sucesso, obtive erro: %v", err)
+	}
+	want := []string{"https://a/feed", "https://b/feed"}
+	if len(cfg.RSSFeeds) != len(want) {
+		t.Fatalf("RSSFeeds = %v, esperava %v", cfg.RSSFeeds, want)
+	}
+	for i, w := range want {
+		if cfg.RSSFeeds[i] != w {
+			t.Errorf("RSSFeeds[%d] = %q, esperava %q", i, cfg.RSSFeeds[i], w)
+		}
+	}
+}
+
+func TestLoadRSSFeedsEmptyIsNil(t *testing.T) {
+	applyEnv(t, baseEnv())
+	t.Setenv("LEAK_RSS_FEEDS", "")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("esperava sucesso, obtive erro: %v", err)
+	}
+	if cfg.RSSFeeds != nil {
+		t.Errorf("RSSFeeds = %v, esperava nil (usa o padrão)", cfg.RSSFeeds)
+	}
+}
+
 func TestLoadDefaults(t *testing.T) {
 	applyEnv(t, baseEnv())
 	// Zera os opcionais para garantir que os defaults entram em ação.
 	t.Setenv("LOG_LEVEL", "")
 	t.Setenv("CACHE_TTL", "")
 	t.Setenv("HTTP_TIMEOUT", "")
-	t.Setenv("CHEAPSHARK_USER_AGENT", "")
+	t.Setenv("HTTP_USER_AGENT", "")
 
 	cfg, err := Load()
 	if err != nil {
@@ -85,8 +117,8 @@ func TestLoadDefaults(t *testing.T) {
 	if cfg.HTTPTimeout != 10*time.Second {
 		t.Errorf("http timeout default = %v, esperava 10s", cfg.HTTPTimeout)
 	}
-	if cfg.CheapSharkUserAgent != defaultUserAgent {
-		t.Errorf("user-agent default = %q", cfg.CheapSharkUserAgent)
+	if cfg.UserAgent != defaultUserAgent {
+		t.Errorf("user-agent default = %q", cfg.UserAgent)
 	}
 	if cfg.Reddit.Enabled() {
 		t.Errorf("Reddit não deveria estar habilitado sem credenciais")
